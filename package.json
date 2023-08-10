@@ -1,0 +1,52 @@
+{
+  "name": "checkout-stream-testing",
+  "type": "module",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "lint": "quilt lint",
+    "test": "quilt test",
+    "type-check": "quilt type-check",
+    "develop": "quilt develop",
+    "build": "quilt build",
+    "start": "node ./build/server/server.js"
+  },
+  "devDependencies": {
+    "@quilted/browserslist-config": "^0.1.9",
+    "@quilted/cloudflare": "^0.1.55",
+    "@quilted/craft": "^0.1.222",
+    "@quilted/eslint-config": "^0.1.17",
+    "@quilted/prettier": "^0.2.11",
+    "@quilted/quilt": "^0.5.149",
+    "@quilted/stylelint-config": "^0.1.0",
+    "@quilted/typescript": "^0.2.20",
+    "@types/react": "^18.2.20",
+    "@types/react-dom": "^18.0.0",
+    "preact": "^10.16.0",
+    "react": "npm:@quilted/react@^18.2.0",
+    "react-dom": "npm:@quilted/react-dom@^18.2.0",
+    "typescript": "^5.1.6"
+  },
+  "sideEffects": [
+    "*.css",
+    "browser.tsx"
+  ],
+  "browserslist": {
+    "defaults": [
+      "extends @quilted/browserslist-config/defaults"
+    ],
+    "modules": [
+      "extends @quilted/browserslist-config/modules"
+    ],
+    "evergreen": [
+      "extends @quilted/browserslist-config/evergreen"
+    ]
+  },
+  "eslintConfig": {
+    "extends": "@quilted/eslint-config/app"
+  },
+  "prettier": "@quilted/prettier",
+  "stylelint": {
+    "extends": "@quilted/stylelint-config"
+  }
+}
