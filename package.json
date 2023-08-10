@@ -14,7 +14,7 @@
   "devDependencies": {
     "@quilted/browserslist-config": "^0.1.9",
     "@quilted/cloudflare": "^0.1.55",
-    "@quilted/craft": "^0.1.222",
+    "@quilted/craft": "^0.1.223",
     "@quilted/eslint-config": "^0.1.17",
     "@quilted/prettier": "^0.2.11",
     "@quilted/quilt": "^0.5.149",

@@ -15,7 +15,7 @@ const assets = createBrowserAssets();
 
 const handler: RequestHandler = async function handler() {
   console.log(assets.entry());
-  return new Response('Hello world!');
+  return new Response('Hello world!!!');
 };
 
 export default handler;

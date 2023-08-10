@@ -10,10 +10,10 @@ devDependencies:
     version: 0.1.9
   '@quilted/cloudflare':
     specifier: ^0.1.55
-    version: 0.1.55(@quilted/craft@0.1.222)(@quilted/quilt@0.5.149)
+    version: 0.1.55(@quilted/craft@0.1.223)(@quilted/quilt@0.5.149)
   '@quilted/craft':
-    specifier: ^0.1.222
-    version: 0.1.222(@quilted/quilt@0.5.149)(@quilted/react@18.2.4)(typescript@5.1.6)
+    specifier: ^0.1.223
+    version: 0.1.223(@quilted/quilt@0.5.149)(@quilted/react@18.2.4)(typescript@5.1.6)
   '@quilted/eslint-config':
     specifier: ^0.1.17
     version: 0.1.17(typescript@5.1.6)
@@ -2667,7 +2667,7 @@ packages:
     resolution: {integrity: sha512-7FZjc1Vn5dPvGfF+zE2GvYnTkbpWmxB400hWeWm2dWjkKJlpTcl5zUPD9VsJAjRisakqUZa7/s7jkTMg/PQQbQ==}
     dev: true
 
-  /@quilted/cloudflare@0.1.55(@quilted/craft@0.1.222)(@quilted/quilt@0.5.149):
+  /@quilted/cloudflare@0.1.55(@quilted/craft@0.1.223)(@quilted/quilt@0.5.149):
     resolution: {integrity: sha512-7AK1h2BffVvKAEUpeD+LsWaXsjaEfnN/nVwniYYCFWzy24p+Ze7ChaKHKu0zU5n93Z27iPYceC+YmQXB/alFGA==}
     peerDependencies:
       '@quilted/craft': ^0.1.215
@@ -2680,7 +2680,7 @@ packages:
     dependencies:
       '@cloudflare/kv-asset-handler': 0.3.0
       '@cloudflare/workers-types': 4.20230807.0
-      '@quilted/craft': 0.1.222(@quilted/quilt@0.5.149)(@quilted/react@18.2.4)(typescript@5.1.6)
+      '@quilted/craft': 0.1.223(@quilted/quilt@0.5.149)(@quilted/react@18.2.4)(typescript@5.1.6)
       '@quilted/quilt': 0.5.149(@babel/core@7.22.10)(@quilted/react-dom@18.2.5)(@quilted/react@18.2.4)(graphql@16.7.1)(preact@10.16.0)(prettier@2.8.8)(rollup@3.28.0)
       common-tags: 1.8.2
       mime: 2.6.0
@@ -2693,8 +2693,8 @@ packages:
       - utf-8-validate
     dev: true
 
-  /@quilted/craft@0.1.222(@quilted/quilt@0.5.149)(@quilted/react@18.2.4)(typescript@5.1.6):
-    resolution: {integrity: sha512-AMssOVTK0/L0BcYkb2DXzy61aoZEAgmR7T1dfQ5M/BfcaUpXsC1Eg1Tz4o5+8PL5Pl5XG1iCN9lMgvIqdWOoRw==}
+  /@quilted/craft@0.1.223(@quilted/quilt@0.5.149)(@quilted/react@18.2.4)(typescript@5.1.6):
+    resolution: {integrity: sha512-OwsQ4pXCTQnTInyUO8TvwMBnNOgnWPOIsp4wjwXxIN6EEPzZf2oAVXKCmY/mOmo/xc839AB+PozsU4Hzz770QQ==}
     hasBin: true
     peerDependencies:
       '@quilted/quilt': ^0.5.148
