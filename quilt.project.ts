@@ -8,13 +8,13 @@ export default createProject((project) => {
       browser: {
         entry: './browser.tsx',
       },
-      // server: {
-      //   entry: './server.tsx',
-      // },
       server: {
-        format: 'custom',
-        entry: './server-simple.ts',
+        entry: './server.tsx',
       },
+      // server: {
+      //   format: 'custom',
+      //   entry: './server-simple.ts',
+      // },
     }),
     cloudflarePages(),
   );

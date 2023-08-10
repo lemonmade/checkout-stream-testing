@@ -1,3 +1,4 @@
+import {sleep} from '@quilted/quilt';
 import {type RequestHandler} from '@quilted/quilt/server';
 import {createBrowserAssets} from '@quilted/quilt/magic/assets';
 
@@ -15,7 +16,37 @@ const assets = createBrowserAssets();
 
 const handler: RequestHandler = async function handler() {
   console.log(assets.entry());
-  return new Response('Hello world!!!');
+
+  const {readable, writable} = new TransformStream();
+
+  const writer = writable.getWriter();
+  const encoder = new TextEncoder();
+
+  const write = (content: string) => writer.write(encoder.encode(content));
+
+  write(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8" />
+        <title>Quilt example</title>
+      </head>
+      <body>
+        <pre>${JSON.stringify(assets.entry(), null, 2)}</pre>
+        <div id="first-chunk">First chunk content</div>
+  `);
+
+  sleep(1000).then(() => {
+    write(`<h1>Hello world</h1></body></html>`);
+    writer.close();
+  });
+
+  return new Response(readable, {
+    status: 200,
+    headers: {
+      'Content-Type': 'text/html',
+    },
+  });
 };
 
 export default handler;
