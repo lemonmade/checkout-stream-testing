@@ -55,6 +55,7 @@ const handler: RequestHandler = async function handler(request) {
       <body>
         <pre>${JSON.stringify({cacheKey, entryAssets}, null, 2)}</pre>
         <div id="first-chunk">First chunk content</div>
+        <div
   `);
 
   const headers = new Headers({
@@ -82,7 +83,7 @@ const handler: RequestHandler = async function handler(request) {
   async function streamResponse() {
     await sleep(1000);
 
-    write(`<div>
+    write(`></div><div>
       <div id="second-chunk">Second chunk content</div>
       <div id="app"></div>
     </div></body></html>`);
