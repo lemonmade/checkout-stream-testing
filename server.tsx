@@ -22,6 +22,10 @@ const handler: RequestHandler = async function handler(request) {
 
   const write = (content: string) => writer.write(encoder.encode(content));
 
+  const entryAssets = await assets.entry({
+    cacheKey: await assets.cacheKey?.(request),
+  });
+
   write(`
     <!DOCTYPE html>
     <html>
@@ -30,13 +34,7 @@ const handler: RequestHandler = async function handler(request) {
         <title>Quilt example</title>
       </head>
       <body>
-        <pre>${JSON.stringify(
-          assets.entry({
-            cacheKey: await assets.cacheKey?.(request),
-          }),
-          null,
-          2,
-        )}</pre>
+        <pre>${JSON.stringify(entryAssets, null, 2)}</pre>
         <div id="first-chunk">First chunk content</div>
   `);
 
