@@ -11,10 +11,6 @@ export default createProject((project) => {
       server: {
         entry: './server.tsx',
       },
-      // server: {
-      //   format: 'custom',
-      //   entry: './server-simple.ts',
-      // },
     }),
     cloudflarePages(),
   );

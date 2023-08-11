@@ -1,5 +1,8 @@
 import {sleep} from '@quilted/quilt';
-import {type RequestHandler} from '@quilted/quilt/server';
+import {
+  scriptAssetPreloadAttributes,
+  type RequestHandler,
+} from '@quilted/quilt/server';
 import {createBrowserAssets} from '@quilted/quilt/magic/assets';
 
 // const render = createServerRender(
@@ -23,7 +26,13 @@ const handler: RequestHandler = async function handler(request) {
   const write = (content: string) => writer.write(encoder.encode(content));
 
   const cacheKey = await assets.cacheKey?.(request);
-  const entryAssets = await assets.entry({cacheKey});
+  const [entryAssets, probablyAsyncAssets] = await Promise.all([
+    assets.entry({cacheKey}),
+    assets.modules(['features/ProbablyFeature.tsx'], {cacheKey}),
+  ]);
+
+  const sentAssets = new Set<string>();
+  const preloadAssets = new Set<string>();
 
   write(`
     <!DOCTYPE html>
@@ -37,33 +46,86 @@ const handler: RequestHandler = async function handler(request) {
         <div id="first-chunk">First chunk content</div>
   `);
 
-  sleep(1000).then(() => {
-    write(`<div>
-      <div id="second-chunk">Second chunk content</div>
-      <div id="app"></div>
-
-      ${entryAssets.scripts
-        .map((script) => {
-          const attributes = Object.entries({
-            src: script.source,
-            ...script.attributes,
-          });
-
-          return `<script ${attributes
-            .map(([key, value]) => `${key}="${value}"`)
-            .join(' ')}></script>`;
-        })
-        .join('\n')}
-    </div></body></html>`);
-    writer.close();
+  const headers = new Headers({
+    'Content-Type': 'text/html',
   });
 
-  return new Response(readable, {
+  for (const asset of [
+    ...entryAssets.scripts,
+    ...probablyAsyncAssets.scripts,
+  ]) {
+    if (preloadAssets.has(asset.source)) continue;
+    preloadAssets.add(asset.source);
+    headers.append('Link', preloadHeader(scriptAssetPreloadAttributes(asset)));
+  }
+
+  const response = new Response(readable, {
     status: 200,
     headers: {
       'Content-Type': 'text/html',
     },
   });
+
+  streamResponse();
+
+  return response;
+
+  async function streamResponse() {
+    await sleep(1000);
+
+    const scriptTags: string[] = [];
+
+    for (const asset of entryAssets.scripts) {
+      if (sentAssets.has(asset.source)) continue;
+      sentAssets.add(asset.source);
+      scriptTags.push(
+        htmlTag('script', {src: asset.source, ...asset.attributes}),
+      );
+    }
+
+    write(`<div>
+      <div id="second-chunk">Second chunk content</div>
+      <div id="app"></div>
+
+      ${scriptTags.join('\n')}
+    </div></body></html>`);
+    writer.close();
+  }
 };
 
 export default handler;
+
+function htmlTag(tag: string, attributes?: {[key: string]: string}) {
+  const attributeEntries = Object.entries(attributes ?? {});
+  const attributeContent =
+    attributeEntries.length > 0
+      ? ` ${attributeEntries
+          .map(([key, value]) => `${key}="${value}"`)
+          .join(' ')}`
+      : ``;
+
+  return `<${tag}${attributeContent}></${tag}>`;
+}
+
+function preloadHeader(attributes: Partial<HTMLLinkElement>) {
+  const {
+    as,
+    rel = 'preload',
+    href,
+    crossOrigin,
+    crossorigin,
+  } = attributes as any;
+
+  // Support both property and attribute versions of the casing
+  const finalCrossOrigin = crossOrigin ?? crossorigin;
+
+  let header = `<${href}>; rel="${rel}"; as="${as}"`;
+
+  if (finalCrossOrigin === '' || finalCrossOrigin === true) {
+    header += `; crossorigin`;
+  } else if (typeof finalCrossOrigin === 'string') {
+    header += `; crossorigin="${finalCrossOrigin}"`;
+  }
+
+  return header;
+}
