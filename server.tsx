@@ -34,12 +34,23 @@ const handler: RequestHandler = async function handler(request) {
   const sentAssets = new Set<string>();
   const preloadAssets = new Set<string>();
 
+  const scriptTags: string[] = [];
+
+  for (const asset of entryAssets.scripts) {
+    if (sentAssets.has(asset.source)) continue;
+    sentAssets.add(asset.source);
+    scriptTags.push(
+      htmlTag('script', {src: asset.source, async: true, ...asset.attributes}),
+    );
+  }
+
   write(`
     <!DOCTYPE html>
     <html>
       <head>
         <meta charset="utf-8" />
         <title>Quilt example</title>
+        ${scriptTags.join('\n')}
       </head>
       <body>
         <pre>${JSON.stringify({cacheKey, entryAssets}, null, 2)}</pre>
@@ -71,21 +82,9 @@ const handler: RequestHandler = async function handler(request) {
   async function streamResponse() {
     await sleep(1000);
 
-    const scriptTags: string[] = [];
-
-    for (const asset of entryAssets.scripts) {
-      if (sentAssets.has(asset.source)) continue;
-      sentAssets.add(asset.source);
-      scriptTags.push(
-        htmlTag('script', {src: asset.source, ...asset.attributes}),
-      );
-    }
-
     write(`<div>
       <div id="second-chunk">Second chunk content</div>
       <div id="app"></div>
-
-      ${scriptTags.join('\n')}
     </div></body></html>`);
     writer.close();
   }
@@ -93,12 +92,12 @@ const handler: RequestHandler = async function handler(request) {
 
 export default handler;
 
-function htmlTag(tag: string, attributes?: {[key: string]: string}) {
+function htmlTag(tag: string, attributes?: {[key: string]: string | boolean}) {
   const attributeEntries = Object.entries(attributes ?? {});
   const attributeContent =
     attributeEntries.length > 0
       ? ` ${attributeEntries
-          .map(([key, value]) => `${key}="${value}"`)
+          .map(([key, value]) => (value === true ? key : `${key}="${value}"`))
           .join(' ')}`
       : ``;
 
