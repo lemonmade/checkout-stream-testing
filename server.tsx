@@ -1,49 +1,74 @@
-import {sleep} from '@quilted/quilt';
-import {
-  scriptAssetPreloadAttributes,
-  type RequestHandler,
-} from '@quilted/quilt/server';
+import {sleep, type Asset} from '@quilted/quilt';
 import {createBrowserAssets} from '@quilted/quilt/magic/assets';
-
-// const render = createServerRender(
-//   async () => {
-//     const {default: App} = await import('./App.tsx');
-//     return <App />;
-//   },
-//   {
-//     assets: createBrowserAssets(),
-//   },
-// );
 
 const assets = createBrowserAssets();
 
-const handler: RequestHandler = async function handler(request) {
+async function handler(request: Request) {
+  // Set up the stream we will write HTML to
   const {readable, writable} = new TransformStream();
-
   const writer = writable.getWriter();
   const encoder = new TextEncoder();
-
   const write = (content: string) => writer.write(encoder.encode(content));
 
-  const cacheKey = await assets.cacheKey?.(request);
+  // Set up the headers we will send
+  const headers = new Headers({
+    'Content-Type': 'text/html',
+  });
+
+  // Get the list of entry assets, and lists of likely async bundles that
+  // we expect to need in most cases and want to preload even before
+  // we know if we need them
+  const assetsCacheKey = await assets.cacheKey?.(request);
   const [entryAssets, probablyAsyncAssets] = await Promise.all([
-    assets.entry({cacheKey}),
-    assets.modules(['features/ProbablyFeature.tsx'], {cacheKey}),
+    assets.entry({cacheKey: assetsCacheKey}),
+    assets.modules(['features/ProbablyFeature.tsx'], {
+      cacheKey: assetsCacheKey,
+    }),
   ]);
 
+  // Collect the asset references to include in the initial HTML document.
+  // We include two lists of references:
+  //
+  // - `Link` headers, which are used to preload assets.
+  // - `<script>` tags, which are included in the `<head>` with the `async` attribute
+  //
+  // When using ESM, this combination forces high-priority downloading in most
+  // browsers. This combination also works around the fact that most Safari versions
+  // do not support `modulepreload` headers, as the guaranteed-needed script tags are
+  // still sent in the initial HTML chunk.
   const sentAssets = new Set<string>();
   const preloadAssets = new Set<string>();
-
   const scriptTags: string[] = [];
 
-  for (const asset of entryAssets.scripts) {
-    if (sentAssets.has(asset.source)) continue;
+  function addPreloadHeader(asset: Asset) {
+    if (preloadAssets.has(asset.source)) return;
+    preloadAssets.add(asset.source);
+    headers.append('Link', scriptPreloadHeader(asset));
+  }
+
+  function addScriptTag(asset: Asset) {
+    if (sentAssets.has(asset.source)) return;
     sentAssets.add(asset.source);
     scriptTags.push(
-      htmlTag('script', {src: asset.source, async: true, ...asset.attributes}),
+      htmlTag('script', {src: asset.source, ...asset.attributes}),
     );
   }
 
+  // Entry assets are always needed, so we preload them and add them
+  // to the initial HTML chunk.
+  for (const asset of entryAssets.scripts) {
+    addPreloadHeader(asset);
+    addScriptTag(asset);
+  }
+
+  // If there are async assets we think we will usually need, we can preload
+  // them as well.
+  for (const asset of probablyAsyncAssets.scripts) {
+    addPreloadHeader(asset);
+  }
+
+  // Write our initial chunk of HTML. This flushes the content we
+  // can write without any data, and the asset references.
   write(`
     <!DOCTYPE html>
     <html>
@@ -53,52 +78,48 @@ const handler: RequestHandler = async function handler(request) {
         ${scriptTags.join('\n')}
       </head>
       <body>
-        <pre>${JSON.stringify({cacheKey, entryAssets}, null, 2)}</pre>
         <div id="first-chunk">First chunk content</div>
-        <div
   `);
 
-  const headers = new Headers({
-    'Content-Type': 'text/html',
-  });
+  // Start the process that will write the rest of the streamed response...
+  streamResponseBody();
 
-  for (const asset of [
-    ...entryAssets.scripts,
-    ...probablyAsyncAssets.scripts,
-  ]) {
-    if (preloadAssets.has(asset.source)) continue;
-    preloadAssets.add(asset.source);
-    headers.append('Link', preloadHeader(scriptAssetPreloadAttributes(asset)));
-  }
-
+  // ... but return the response immediately
   const response = new Response(readable, {
     status: 200,
     headers,
   });
 
-  streamResponse();
-
   return response;
 
-  async function streamResponse() {
+  async function streamResponseBody() {
+    // Simulate needing to fetch some data before we can render the real app
     await sleep(1000);
 
-    write(`></div><div>
+    // Write the rest of the HTML. This would include the actual rendered HTML,
+    // as well as the minimal script that kicks of hydration of the client-side app.
+    //
+    // TODO: need to make the bootstrap script work with non-ESM builds
+    write(`
       <div id="second-chunk">Second chunk content</div>
       <div id="app"></div>
       <script type="module">
-        import ${JSON.stringify(
+        import {render} from ${JSON.stringify(
           entryAssets.scripts[entryAssets.scripts.length - 1]!.source,
         )};
 
-        globalThis[Symbol.for('app')].render();
+        render();
       </script>
-    </div></body></html>`);
+    </body></html>`);
+
+    // Close the stream so the response terminates in the browser
     writer.close();
   }
-};
+}
 
 export default handler;
+
+// Helper functions
 
 function htmlTag(tag: string, attributes?: {[key: string]: string | boolean}) {
   const attributeEntries = Object.entries(attributes ?? {});
@@ -112,25 +133,11 @@ function htmlTag(tag: string, attributes?: {[key: string]: string | boolean}) {
   return `<${tag}${attributeContent}></${tag}>`;
 }
 
-function preloadHeader(attributes: Partial<HTMLLinkElement>) {
-  const {
-    as,
-    rel = 'preload',
-    href,
-    crossOrigin,
-    crossorigin,
-  } = attributes as any;
+function scriptPreloadHeader(asset: Asset) {
+  const {source, attributes} = asset;
+  const isModule = attributes?.type === 'module';
 
-  // Support both property and attribute versions of the casing
-  const finalCrossOrigin = crossOrigin ?? crossorigin;
-
-  let header = `<${href}>; rel="${rel}"; as="${as}"`;
-
-  if (finalCrossOrigin === '' || finalCrossOrigin === true) {
-    header += `; crossorigin`;
-  } else if (typeof finalCrossOrigin === 'string') {
-    header += `; crossorigin="${finalCrossOrigin}"`;
-  }
-
-  return header;
+  return `<${source}>; rel="${
+    isModule ? 'modulepreload' : 'preload'
+  }"; as="script"`;
 }

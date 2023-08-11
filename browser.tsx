@@ -9,7 +9,3 @@ export async function render() {
 
   createRoot(element).render(<App />);
 }
-
-Object.assign(globalThis, {
-  [Symbol.for('app')]: {render},
-});

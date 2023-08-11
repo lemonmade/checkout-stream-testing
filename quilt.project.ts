@@ -5,6 +5,7 @@ export default createProject((project) => {
   project.use(
     quiltWorkspace(),
     quiltApp({
+      assets: {minify: false},
       browser: {
         entry: './browser.tsx',
       },
