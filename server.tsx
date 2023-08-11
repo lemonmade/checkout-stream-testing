@@ -61,9 +61,7 @@ const handler: RequestHandler = async function handler(request) {
 
   const response = new Response(readable, {
     status: 200,
-    headers: {
-      'Content-Type': 'text/html',
-    },
+    headers,
   });
 
   streamResponse();
