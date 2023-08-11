@@ -1,5 +1,5 @@
 import {sleep} from '@quilted/quilt';
-import {renderAppToResponse, type RequestHandler} from '@quilted/quilt/server';
+import {type RequestHandler} from '@quilted/quilt/server';
 import {createBrowserAssets} from '@quilted/quilt/magic/assets';
 
 // const render = createServerRender(
@@ -22,9 +22,8 @@ const handler: RequestHandler = async function handler(request) {
 
   const write = (content: string) => writer.write(encoder.encode(content));
 
-  const entryAssets = await assets.entry({
-    cacheKey: await assets.cacheKey?.(request),
-  });
+  const cacheKey = await assets.cacheKey?.(request);
+  const entryAssets = await assets.entry({cacheKey});
 
   write(`
     <!DOCTYPE html>
@@ -34,7 +33,7 @@ const handler: RequestHandler = async function handler(request) {
         <title>Quilt example</title>
       </head>
       <body>
-        <pre>${JSON.stringify(entryAssets, null, 2)}</pre>
+        <pre>${JSON.stringify({cacheKey, entryAssets}, null, 2)}</pre>
         <div id="first-chunk">First chunk content</div>
   `);
 
