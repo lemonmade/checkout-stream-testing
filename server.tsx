@@ -75,9 +75,9 @@ async function handler(request: Request) {
       <head>
         <meta charset="utf-8" />
         <title>Quilt example</title>
-        ${scriptTags.join('\n')}
       </head>
       <body>
+        ${scriptTags.join('\n')}
         <div id="first-chunk">First chunk content</div>
   `);
 
