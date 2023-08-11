@@ -38,7 +38,14 @@ const handler: RequestHandler = async function handler(request) {
   `);
 
   sleep(1000).then(() => {
-    write(`<h1>Hello world</h1></body></html>`);
+    write(`<div>
+      <div id="second-chunk">Second chunk content</div>
+      <div id="app"></div>
+
+      ${entryAssets.scripts
+        .map((script) => `<script src="${script}"></script>`)
+        .join('\n')}
+    </div></body></html>`);
     writer.close();
   });
 

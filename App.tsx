@@ -10,10 +10,9 @@ const UncommonFeature = createAsyncComponent(
 
 export default function App() {
   return (
-    <div>
-      <div>Rendered checkout!</div>
+    <>
       <ProbablyFeature />
       <UncommonFeature />
-    </div>
+    </>
   );
 }
