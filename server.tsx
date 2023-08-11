@@ -43,7 +43,16 @@ const handler: RequestHandler = async function handler(request) {
       <div id="app"></div>
 
       ${entryAssets.scripts
-        .map((script) => `<script src="${script}"></script>`)
+        .map((script) => {
+          const attributes = Object.entries({
+            src: script.source,
+            ...script.attributes,
+          });
+
+          return `<script ${attributes
+            .map(([key, value]) => `${key}="${value}"`)
+            .join(' ')}></script>`;
+        })
         .join('\n')}
     </div></body></html>`);
     writer.close();
