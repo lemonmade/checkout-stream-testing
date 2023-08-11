@@ -86,6 +86,13 @@ const handler: RequestHandler = async function handler(request) {
     write(`></div><div>
       <div id="second-chunk">Second chunk content</div>
       <div id="app"></div>
+      <script type="module">
+        import ${JSON.stringify(
+          entryAssets.scripts[entryAssets.scripts.length - 1]!.source,
+        )};
+
+        globalThis[Symbol.for('app')].render();
+      </script>
     </div></body></html>`);
     writer.close();
   }

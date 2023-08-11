@@ -4,6 +4,12 @@ import {createRoot} from 'react-dom/client';
 
 import App from './App.tsx';
 
-const element = document.querySelector('#app')!;
+export async function render() {
+  const element = document.querySelector('#app')!;
 
-createRoot(element).render(<App />);
+  createRoot(element).render(<App />);
+}
+
+Object.assign(globalThis, {
+  [Symbol.for('app')]: {render},
+});
