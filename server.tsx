@@ -1,5 +1,5 @@
 import {sleep} from '@quilted/quilt';
-import {type RequestHandler} from '@quilted/quilt/server';
+import {renderAppToResponse, type RequestHandler} from '@quilted/quilt/server';
 import {createBrowserAssets} from '@quilted/quilt/magic/assets';
 
 // const render = createServerRender(
@@ -32,7 +32,7 @@ const handler: RequestHandler = async function handler(request) {
       <body>
         <pre>${JSON.stringify(
           assets.entry({
-            cacheKey: assets.cacheKey?.(request),
+            cacheKey: await assets.cacheKey?.(request),
           }),
           null,
           2,
