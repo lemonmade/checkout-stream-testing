@@ -14,9 +14,7 @@ import {createBrowserAssets} from '@quilted/quilt/magic/assets';
 
 const assets = createBrowserAssets();
 
-const handler: RequestHandler = async function handler() {
-  console.log(assets.entry());
-
+const handler: RequestHandler = async function handler(request) {
   const {readable, writable} = new TransformStream();
 
   const writer = writable.getWriter();
@@ -32,7 +30,13 @@ const handler: RequestHandler = async function handler() {
         <title>Quilt example</title>
       </head>
       <body>
-        <pre>${JSON.stringify(assets.entry(), null, 2)}</pre>
+        <pre>${JSON.stringify(
+          assets.entry({
+            cacheKey: assets.cacheKey?.(request),
+          }),
+          null,
+          2,
+        )}</pre>
         <div id="first-chunk">First chunk content</div>
   `);
 
