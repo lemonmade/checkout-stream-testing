@@ -50,7 +50,7 @@ async function handler(request: Request) {
     if (sentAssets.has(asset.source)) return;
     sentAssets.add(asset.source);
     scriptTags.push(
-      htmlTag('script', {src: asset.source, ...asset.attributes}),
+      htmlTag('script', {src: asset.source, async: true, ...asset.attributes}),
     );
   }
 
