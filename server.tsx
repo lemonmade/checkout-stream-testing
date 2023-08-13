@@ -13,7 +13,7 @@ async function handler(request: Request) {
   // Set up the headers we will send
   const headers = new Headers({
     'Content-Type': 'text/html',
-    'X-Content-Type-Options': 'nosniff',
+    // 'X-Content-Type-Options': 'nosniff',
   });
 
   // Get the list of entry assets, and lists of likely async bundles that
