@@ -81,9 +81,6 @@ async function handler(request: Request) {
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Quilt example</title>
-        <style>
-          body, html { margin: 0; padding: 0; }
-        </style>
       </head>
       <body>
         ${scriptTags.join('\n')}
