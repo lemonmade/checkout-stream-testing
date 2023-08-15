@@ -12,7 +12,7 @@ async function handler(request: Request) {
 
   // Set up the headers we will send
   const headers = new Headers({
-    'Content-Type': 'text/html',
+    'Content-Type': 'text/html; encoding=utf-8',
     // Without this, Safari waits to receive the full streamed response before
     // loading any scripts.
     'X-Content-Type-Options': 'nosniff',
