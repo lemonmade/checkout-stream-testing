@@ -12,13 +12,13 @@ async function handler(request: Request) {
 
   // Set up the headers we will send
   const headers = new Headers({
-    'Content-Type': 'text/html; encoding=utf-8',
+    'Content-Type': 'text/html; charset=utf-8',
     // Without this, Safari waits to receive the full streamed response before
     // loading any scripts.
     'X-Content-Type-Options': 'nosniff',
-    // 'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
-    // 'Content-Security-Policy': 'upgrade-insecure-requests',
-    // 'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+    'Content-Security-Policy': 'upgrade-insecure-requests',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
   });
 
   // Get the list of entry assets, and lists of likely async bundles that
@@ -81,6 +81,9 @@ async function handler(request: Request) {
       <head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Quilt example</title>
+        <style>
+          body, html { margin: 0; padding: 0; }
+        </style>
       </head>
       <body>
         ${scriptTags.join('\n')}
