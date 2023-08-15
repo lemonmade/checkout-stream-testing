@@ -86,8 +86,8 @@ async function handler(request: Request) {
         </style>
       </head>
       <body>
-        ${scriptTags.join('\n')}
         <div id="first-chunk">First chunk content</div>
+        ${scriptTags.join('\n')}
   `);
 
   // Start the process that will write the rest of the streamed response...
