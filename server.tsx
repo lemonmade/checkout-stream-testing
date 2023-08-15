@@ -16,6 +16,9 @@ async function handler(request: Request) {
     // Without this, Safari waits to receive the full streamed response before
     // loading any scripts.
     'X-Content-Type-Options': 'nosniff',
+    'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
+    'Content-Security-Policy': 'upgrade-insecure-requests',
+    'Referrer-Policy': 'strict-origin-when-cross-origin',
   });
 
   // Get the list of entry assets, and lists of likely async bundles that
