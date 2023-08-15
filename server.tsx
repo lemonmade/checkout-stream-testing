@@ -76,7 +76,7 @@ async function handler(request: Request) {
     <!DOCTYPE html>
     <html>
       <head>
-        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
         <title>Quilt example</title>
       </head>
       <body>
