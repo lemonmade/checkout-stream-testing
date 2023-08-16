@@ -5,10 +5,8 @@ const assets = createBrowserAssets();
 
 async function handler(request: Request) {
   // Set up the stream we will write HTML to
-  const {readable, writable} = new TransformStream();
+  const {readable, writable} = new TextEncoderStream();
   const writer = writable.getWriter();
-  const encoder = new TextEncoder();
-  const write = (content: string) => writer.write(encoder.encode(content));
 
   // Set up the headers we will send
   const headers = new Headers({
@@ -76,7 +74,7 @@ async function handler(request: Request) {
 
   // Write our initial chunk of HTML. This flushes the content we
   // can write without any data, and the asset references.
-  write(`
+  writer.write(`
     <!DOCTYPE html>
     <html>
       <head>
@@ -112,7 +110,7 @@ async function handler(request: Request) {
     // as well as the minimal script that kicks of hydration of the client-side app.
     //
     // TODO: need to make the bootstrap script work with non-ESM builds
-    write(`
+    writer.write(`
       <div id="second-chunk">Second chunk content</div>
       <div id="app"></div>
       <script type="module">
@@ -125,7 +123,7 @@ async function handler(request: Request) {
     </body></html>`);
 
     // Close the stream so the response terminates in the browser
-    writer.close();
+    writable.close();
   }
 }
 
