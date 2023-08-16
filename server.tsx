@@ -4,6 +4,8 @@ import {createBrowserAssets} from '@quilted/quilt/magic/assets';
 const assets = createBrowserAssets();
 
 async function handler(request: Request) {
+  const url = new URL(request.url);
+  
   // Set up the stream we will write HTML to
   const {readable, writable} = new TextEncoderStream();
   const writer = writable.getWriter();
@@ -17,7 +19,6 @@ async function handler(request: Request) {
     'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
     'Content-Security-Policy': 'upgrade-insecure-requests',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
-    'Transfer-Encoding': 'chunked',
   });
 
   // Get the list of entry assets, and lists of likely async bundles that
@@ -103,8 +104,11 @@ async function handler(request: Request) {
   return response;
 
   async function streamResponseBody() {
+    let delay = Number.parseInt(url.searchParams.get('delay'), 10);
+    if (Number.isNaN(delay)) delay = 1000;
+    
     // Simulate needing to fetch some data before we can render the real app
-    await sleep(1000);
+    await sleep(delay);
 
     // Write the rest of the HTML. This would include the actual rendered HTML,
     // as well as the minimal script that kicks of hydration of the client-side app.
