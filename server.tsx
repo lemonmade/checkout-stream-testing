@@ -73,7 +73,7 @@ async function handler(request: Request) {
     addPreloadHeader(asset);
   }
 
-  const extraFirstChunkContent = ' '.repeat(parseNumber(url.searchParams.get('extra-content-length')) ?? 0);
+  const extraFirstChunkContent = 'a'.repeat(parseNumber(url.searchParams.get('extra-content-length')) ?? 0);
 
   // Write our initial chunk of HTML. This flushes the content we
   // can write without any data, and the asset references.
