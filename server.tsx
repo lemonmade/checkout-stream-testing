@@ -87,7 +87,9 @@ async function handler(request: Request) {
         ${scriptTags.join('\n')}
       </head>
       <body>
-        <div id="first-chunk">First chunk content</div>
+        <div id="first-chunk">First chunk content<span hidden>${'Lots of additional hidden content '.repeat(
+          200,
+        )}</span></div>
   `);
 
   // Start the process that will write the rest of the streamed response...
