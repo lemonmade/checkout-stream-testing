@@ -73,6 +73,8 @@ async function handler(request: Request) {
     addPreloadHeader(asset);
   }
 
+  const extraFirstChunkContent = ' '.repeat(parseNumber(url.searchParams.get('extra-content-length')) ?? 0);
+
   // Write our initial chunk of HTML. This flushes the content we
   // can write without any data, and the asset references.
   writer.write(`
@@ -87,9 +89,7 @@ async function handler(request: Request) {
         ${scriptTags.join('\n')}
       </head>
       <body>
-        <div id="first-chunk">First chunk content<span hidden>${'Lots of additional hidden content '.repeat(
-          200,
-        )}</span></div>
+        <div id="first-chunk">First chunk content<span hidden>${extraFirstChunkContent}</span></div>
   `);
 
   // Start the process that will write the rest of the streamed response...
@@ -104,8 +104,7 @@ async function handler(request: Request) {
   return response;
 
   async function streamResponseBody() {
-    let delay = Number.parseInt(url.searchParams.get('delay'), 10);
-    if (Number.isNaN(delay)) delay = 1000;
+    const delay = parseNumber(url.searchParams.get('delay')) ?? 1000;
     
     // Simulate needing to fetch some data before we can render the real app
     await sleep(delay);
@@ -154,4 +153,10 @@ function scriptPreloadHeader(asset: Asset) {
   return `<${source}>; rel="${
     isModule ? 'modulepreload' : 'preload'
   }"; as="script"`;
+}
+
+function parseNumber(maybeNumber?: string | null) {
+  if (!maybeNumber) return undefined;
+  const parsed = Number.parseInt(maybeNumber, 10);
+  return Number.isNaN(parsed) ? undefined : parsed;
 }
