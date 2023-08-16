@@ -19,6 +19,7 @@ async function handler(request: Request) {
     'Strict-Transport-Security': 'max-age=63072000; includeSubDomains; preload',
     'Content-Security-Policy': 'upgrade-insecure-requests',
     'Referrer-Policy': 'strict-origin-when-cross-origin',
+    'Transfer-Encoding': 'chunked',
   });
 
   // Get the list of entry assets, and lists of likely async bundles that
